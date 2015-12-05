@@ -24,6 +24,20 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldReturnNullIfNothingMatchesTheQuery() {
+        valTree.parseData("key value");
+
+        assertNull(valTree.query("does.not.exist"));
+    }
+
+    @Test
+    public void shouldAllowQuerying() {
+        valTree.parseData("key value");
+
+        assertEquals("value", valTree.query("key").getString());
+    }
+
+    @Test
     public void shouldAllowDetermineIfThereAreChildrenPresent() {
         valTree.parseData("key-1\n key-2");
 

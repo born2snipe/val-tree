@@ -24,6 +24,7 @@ public class WizFuTest {
         assertEquals("val1", key1.getString());
         assertEquals("test", key1.getChild("key2").getString());
         assertEquals("should have no problem with this indentation", key1.getChild("key2").getChild("key3").getChild("key4-1").getChild("key5-1").getString());
+        assertEquals("test", valTree.query("key1.key2.key3.key4-1").getString());
     }
 
     @Test

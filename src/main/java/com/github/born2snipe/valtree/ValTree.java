@@ -156,6 +156,19 @@ public class ValTree {
         return children.size() > 0;
     }
 
+    public ValTree query(String query) {
+        String[] queryKeys = query.split("\\.");
+        ValTree current = this;
+        for (String queryKey : queryKeys) {
+            if (!current.children.containsKey(queryKey)) {
+                return null;
+            }
+            current = current.children.get(queryKey);
+        }
+
+        return current;
+    }
+
     private class ProblemReadingFileException extends RuntimeException {
         public ProblemReadingFileException(Throwable cause) {
             super("A problem occurred trying to read your file", cause);
