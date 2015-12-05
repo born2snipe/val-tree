@@ -1,5 +1,6 @@
 package com.github.born2snipe.valtree;
 
+import com.badlogic.gdx.files.FileHandle;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -159,7 +160,7 @@ public class ValTreeTest {
         File tmpFile = tmp.newFile();
         IOUtils.write("key value", new FileOutputStream(tmpFile));
 
-        valTree.parse(tmpFile);
+        valTree.parse(new FileHandle(tmpFile));
 
         assertEquals("value", valTree.getChild("key").getString());
     }

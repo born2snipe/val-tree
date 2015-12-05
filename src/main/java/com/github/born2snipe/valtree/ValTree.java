@@ -1,20 +1,20 @@
 package com.github.born2snipe.valtree;
 
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.OrderedMap;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Stack;
 
 public class ValTree implements Iterable<ValTree> {
-    private Map<String, ValTree> children = new LinkedHashMap<String, ValTree>();
+    private ObjectMap<String, ValTree> children = new OrderedMap<String, ValTree>();
     private ValTree parent;
     private String key;
     private String value;
@@ -30,13 +30,11 @@ public class ValTree implements Iterable<ValTree> {
         this.value = value;
     }
 
-    public void parse(File file) {
+    public void parse(FileHandle file) {
         InputStream input = null;
         try {
-            input = new FileInputStream(file);
+            input = file.read(1024);
             parse(input);
-        } catch (IOException e) {
-            throw new ProblemReadingFileException(e);
         } finally {
             close(input);
         }
@@ -48,8 +46,8 @@ public class ValTree implements Iterable<ValTree> {
 
     public void parseData(String content) {
         String[] lines = content.split("\n");
-        Stack<ValTree> parentStack = new Stack<ValTree>();
-        parentStack.push(this);
+        Array<ValTree> parentStack = new Array<ValTree>();
+        parentStack.add(this);
 
         for (String line : lines) {
             line = line.replaceAll("//.+", "");
@@ -62,7 +60,7 @@ public class ValTree implements Iterable<ValTree> {
             child.parseLine(line);
             int childDepth = child.depth;
 
-            while (parentStack.size() > 1) {
+            while (parentStack.size > 1) {
                 ValTree currentParent = parentStack.peek();
                 if (childDepth <= currentParent.depth) {
                     parentStack.pop();
@@ -74,7 +72,7 @@ public class ValTree implements Iterable<ValTree> {
             ValTree parent = parentStack.peek();
             child.parent = parent;
             parent.addChild(child);
-            parentStack.push(child);
+            parentStack.add(child);
         }
     }
 
@@ -106,11 +104,10 @@ public class ValTree implements Iterable<ValTree> {
 
     @Override
     public String toString() {
-        return "ValTree{" +
-                "depth=" + depth +
-                ", key='" + key + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(output);
+        log(printStream);
+        return new String(output.toByteArray());
     }
 
     public boolean isNull() {
@@ -118,7 +115,7 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public int size() {
-        return children.size();
+        return children.size;
     }
 
     public void clear() {
@@ -130,7 +127,7 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public boolean hasChildren() {
-        return children.size() > 0;
+        return children.size > 0;
     }
 
     public ValTree query(String query) {
@@ -242,10 +239,6 @@ public class ValTree implements Iterable<ValTree> {
         } finally {
             printStream.close();
         }
-    }
-
-    public void log() {
-        log(System.out);
     }
 
     public void log(PrintStream printStream) {
