@@ -13,6 +13,7 @@ import java.util.Stack;
 
 public class ValTree implements Iterable<ValTree> {
     private Map<String, ValTree> children = new LinkedHashMap<String, ValTree>();
+    private ValTree parent;
     private String key;
     private String value;
     private Float floatValue;
@@ -68,7 +69,9 @@ public class ValTree implements Iterable<ValTree> {
                 }
             }
 
-            parentStack.peek().children.put(child.key, child);
+            ValTree parent = parentStack.peek();
+            child.parent = parent;
+            parent.addChild(child);
             parentStack.push(child);
         }
     }
@@ -146,6 +149,7 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public void addChild(ValTree tree) {
+        tree.parent = this;
         children.put(tree.key, tree);
     }
 
@@ -194,6 +198,35 @@ public class ValTree implements Iterable<ValTree> {
 
     private int determineDepthOf(String line) {
         return line.replaceAll("\t", " ").replaceAll("(^\\s*).+$", "$1").length();
+    }
+
+    public void set(String key, String value) {
+        if (parent != null) {
+            parent.children.remove(this.key);
+            parent.children.put(key, this);
+        }
+        this.key = key;
+        this.value = value;
+        this.intValue = null;
+        this.floatValue = null;
+    }
+
+    public ValTree getFirstChild() {
+        if (hasChildren()) {
+            return children.values().iterator().next();
+        }
+        return null;
+    }
+
+    public ValTree getIndex(int index) {
+        int i = 0;
+        for (ValTree valTree : this) {
+            if (i == index) {
+                return valTree;
+            }
+            i++;
+        }
+        return null;
     }
 
     private class ProblemReadingFileException extends RuntimeException {

@@ -26,6 +26,43 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldReturnNullWhenNothingIsFoundAtAnIndex() {
+        assertNull(valTree.getIndex(2));
+    }
+
+    @Test
+    public void shouldAllowAccessingChildrenByIndex() {
+        valTree.addChild("1", "1");
+        valTree.addChild("2", "2");
+
+        assertEquals("1", valTree.getIndex(0).getString());
+        assertEquals("2", valTree.getIndex(1).getString());
+    }
+
+    @Test
+    public void shouldReturnNullWhenThereAreNoChildWhenTryingToGetTheFirstChild() {
+        assertNull(valTree.getFirstChild());
+    }
+
+    @Test
+    public void shouldAllowGettingTheFirstChild() {
+        valTree.addChild("1", "1");
+        valTree.addChild("2", "2");
+
+        assertEquals("1", valTree.getFirstChild().getString());
+    }
+
+    @Test
+    public void shouldAllowChangingTheKeyAndValueOfATree() {
+        valTree.addChild("key", "value");
+
+        valTree.getChild("key").set("key-1", "value-1");
+
+        assertNull(valTree.getChild("key"));
+        assertEquals("value-1", valTree.getChild("key-1").getString());
+    }
+
+    @Test
     public void shouldAllowTheTreeToBeIterable() {
         valTree.addChild("1", "1");
         valTree.addChild("2", "2");
