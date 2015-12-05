@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -227,6 +229,56 @@ public class ValTree implements Iterable<ValTree> {
             i++;
         }
         return null;
+    }
+
+    public void save(OutputStream output) {
+        save(output, ' ');
+    }
+
+    public void save(OutputStream output, char padding) {
+        PrintStream printStream = new PrintStream(output);
+        try {
+            log(printStream, padding);
+        } finally {
+            printStream.close();
+        }
+    }
+
+    public void log() {
+        log(System.out);
+    }
+
+    public void log(PrintStream printStream) {
+        log(printStream, ' ');
+    }
+
+    public void log(PrintStream printStream, char padding) {
+        try {
+            for (ValTree tree : this) {
+                saveTree(printStream, tree, 0, padding);
+            }
+        } finally {
+            printStream.flush();
+        }
+    }
+
+    private void saveTree(PrintStream printStream, ValTree tree, int depth, char padding) {
+        for (int i = 0; i < depth; i++) {
+            printStream.print(padding);
+        }
+
+        printStream.print(tree.key);
+        if (tree.value != null) {
+            printStream.print(" ");
+            printStream.print(tree.value);
+        }
+        printStream.println();
+
+        if (tree.hasChildren()) {
+            for (ValTree valTree : tree) {
+                saveTree(printStream, valTree, depth + 1, padding);
+            }
+        }
     }
 
     private class ProblemReadingFileException extends RuntimeException {

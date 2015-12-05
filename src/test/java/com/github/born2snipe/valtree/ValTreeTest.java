@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,6 +24,19 @@ public class ValTreeTest {
     @Before
     public void setUp() throws Exception {
         valTree = new ValTree();
+    }
+
+    @Test
+    public void shouldAllowWritingTheContentsToAnOutputStream() {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        valTree.addChild("1", null);
+        valTree.getChild("1").addChild("2", "2");
+        valTree.addChild("3", "3");
+
+        valTree.save(output);
+
+        assertEquals("1\n 2 2\n3 3\n", new String(output.toByteArray()));
     }
 
     @Test
