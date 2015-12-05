@@ -28,6 +28,20 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldAllowAddingChildrenWithFloatValues() {
+        valTree.addChild("key", 100.0f);
+
+        assertEquals("100.0", valTree.getChild("key").getString());
+    }
+
+    @Test
+    public void shouldAllowAddingChildrenWithIntegerValues() {
+        valTree.addChild("key", 100);
+
+        assertEquals("100", valTree.getChild("key").getString());
+    }
+
+    @Test
     public void shouldNotCareIfTheLeadingWhitespaceIsNotMatchingBetweenSiblings() {
         valTree.parseData(" k1 1\n\tk2 2");
 
