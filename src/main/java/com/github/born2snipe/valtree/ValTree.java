@@ -5,10 +5,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Iterator;
@@ -41,41 +45,49 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public void parse(InputStream inputStream) {
-        parseData(readEntirely(inputStream));
+        BufferedReader reader = null;
+        try {
+            clear();
+            Array<ValTree> parentStack = new Array<ValTree>();
+            parentStack.add(this);
+
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line = null;
+
+            while ((line = reader.readLine()) != null) {
+                line = line.replaceAll("//.+", "");
+
+                if (line.trim().length() == 0) {
+                    continue;
+                }
+
+                ValTree child = new ValTree();
+                child.parseLine(line);
+                int childDepth = child.depth;
+
+                while (parentStack.size > 1) {
+                    ValTree currentParent = parentStack.peek();
+                    if (childDepth <= currentParent.depth) {
+                        parentStack.pop();
+                    } else {
+                        break;
+                    }
+                }
+
+                ValTree parent = parentStack.peek();
+                child.parent = parent;
+                parent.addChild(child);
+                parentStack.add(child);
+            }
+        } catch (IOException e) {
+            throw new ProblemReadingFileException(e);
+        } finally {
+            close(reader);
+        }
     }
 
     public void parseData(String content) {
-        clear();
-
-        String[] lines = content.split("\n");
-        Array<ValTree> parentStack = new Array<ValTree>();
-        parentStack.add(this);
-
-        for (String line : lines) {
-            line = line.replaceAll("//.+", "");
-
-            if (line.trim().length() == 0) {
-                continue;
-            }
-
-            ValTree child = new ValTree();
-            child.parseLine(line);
-            int childDepth = child.depth;
-
-            while (parentStack.size > 1) {
-                ValTree currentParent = parentStack.peek();
-                if (childDepth <= currentParent.depth) {
-                    parentStack.pop();
-                } else {
-                    break;
-                }
-            }
-
-            ValTree parent = parentStack.peek();
-            child.parent = parent;
-            parent.addChild(child);
-            parentStack.add(child);
-        }
+        parse(new ByteArrayInputStream(content.getBytes()));
     }
 
     public ValTree getChild(String key) {
@@ -167,22 +179,6 @@ public class ValTree implements Iterable<ValTree> {
         return children.values().iterator();
     }
 
-    private String readEntirely(InputStream inputStream) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        int len = -1;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-                output.write(buf, 0, len);
-            }
-            return new String(output.toByteArray());
-        } catch (IOException e) {
-            throw new ProblemReadingFileException(e);
-        } finally {
-            close(inputStream);
-        }
-    }
-
     private void close(Closeable closeable) {
         if (closeable != null) {
             try {
@@ -243,7 +239,7 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public void save(OutputStream output, char padding) {
-        PrintStream printStream = new PrintStream(output);
+        PrintStream printStream = new PrintStream(new BufferedOutputStream(output));
         try {
             log(printStream, padding);
         } finally {
