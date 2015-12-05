@@ -28,6 +28,14 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldNotHaveAProblemWithWindowsLineEndings() {
+        valTree.parseData("1 v1\r\n2 v2");
+
+        assertEquals("v1", valTree.getChild("1").getString());
+        assertEquals("v2", valTree.getChild("2").getString());
+    }
+
+    @Test
     public void shouldAllowWritingTheContentsToAnOutputStream() {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
