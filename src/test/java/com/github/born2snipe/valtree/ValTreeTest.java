@@ -24,6 +24,22 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldAllowAddingChildrenTrees() {
+        valTree.addChild(new ValTree("key", "value"));
+
+        assertEquals("value", valTree.getChild("key").getString());
+        assertEquals(1, valTree.size());
+    }
+
+    @Test
+    public void shouldAllowAddingChildren() {
+        valTree.addChild("key", "value");
+
+        assertEquals("value", valTree.getChild("key").getString());
+        assertEquals(1, valTree.size());
+    }
+
+    @Test
     public void shouldReturnNullIfNothingMatchesTheQuery() {
         valTree.parseData("key value");
 

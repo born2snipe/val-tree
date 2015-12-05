@@ -17,6 +17,14 @@ public class ValTree {
     private Integer intValue;
     private int depth;
 
+    public ValTree() {
+    }
+
+    public ValTree(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
     public void parse(File file) {
         InputStream input = null;
         try {
@@ -167,6 +175,14 @@ public class ValTree {
         }
 
         return current;
+    }
+
+    public void addChild(String key, String value) {
+        addChild(new ValTree(key, value));
+    }
+
+    public void addChild(ValTree tree) {
+        children.put(tree.key, tree);
     }
 
     private class ProblemReadingFileException extends RuntimeException {
