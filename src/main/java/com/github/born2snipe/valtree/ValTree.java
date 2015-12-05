@@ -45,6 +45,8 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public void parseData(String content) {
+        clear();
+
         String[] lines = content.split("\n");
         Array<ValTree> parentStack = new Array<ValTree>();
         parentStack.add(this);

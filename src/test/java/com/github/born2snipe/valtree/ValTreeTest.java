@@ -28,6 +28,35 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldNotCareIfTheLeadingWhitespaceIsNotMatchingBetweenSiblings() {
+        valTree.parseData(" k1 1\n\tk2 2");
+
+        assertEquals("1", valTree.getChild("k1").getString());
+        assertEquals("2", valTree.getChild("k2").getString());
+    }
+
+    @Test
+    public void shouldProperlyClearOutOldValuesWhenAttemptingToParseAnEmptyFileAfterAlreadyHavingValues() {
+        valTree.parseData("key value");
+        valTree.parseData("");
+
+        assertNull(valTree.getKey());
+        assertNull(valTree.getString());
+        assertNull(valTree.getInteger());
+        assertNull(valTree.getFloat());
+        assertEquals(0, valTree.size());
+    }
+
+    @Test
+    public void shouldAllowReusingAValTree() {
+        valTree.parseData("key value");
+        valTree.parseData("1 1");
+
+        assertNull(valTree.getChild("key"));
+        assertEquals("1", valTree.getChild("1").getString());
+    }
+
+    @Test
     public void shouldNotHaveAProblemWithWindowsLineEndings() {
         valTree.parseData("1 v1\r\n2 v2");
 
