@@ -28,6 +28,13 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldAllowAddingAChildWithoutAValue() {
+        valTree.addChild("key");
+
+        assertTrue(valTree.getChild("key").isNull());
+    }
+
+    @Test
     public void shouldAllowAddingChildrenWithFloatValues() {
         valTree.addChild("key", 100.0f);
 

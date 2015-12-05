@@ -157,6 +157,10 @@ public class ValTree implements Iterable<ValTree> {
         return current;
     }
 
+    public void addChild(String key) {
+        addChild(key, null);
+    }
+
     public void addChild(String key, float value) {
         addChild(key, String.valueOf(value));
     }
