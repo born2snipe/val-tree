@@ -28,6 +28,34 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldReturnNullQueryQueryingForValueAndTheKeyDoesNotExist() {
+        assertNull(valTree.queryForString("does.not.exist"));
+        assertNull(valTree.queryForInteger("does.not.exist"));
+        assertNull(valTree.queryForFloat("does.not.exist"));
+    }
+
+    @Test
+    public void shouldAllowQueryingForAFloatValue() {
+        valTree.addChild("key", 10.1f);
+
+        assertEquals(new Float(10.1), valTree.queryForFloat("key"));
+    }
+
+    @Test
+    public void shouldAllowQueryingForAIntValue() {
+        valTree.addChild("key", 1);
+
+        assertEquals(new Integer(1), valTree.queryForInteger("key"));
+    }
+
+    @Test
+    public void shouldAllowQueryingForAStringValue() {
+        valTree.addChild("key", "value");
+
+        assertEquals("value", valTree.queryForString("key"));
+    }
+
+    @Test
     public void shouldAllowAddingAChildWithoutAValue() {
         valTree.addChild("key");
 

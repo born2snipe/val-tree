@@ -144,6 +144,30 @@ public class ValTree implements Iterable<ValTree> {
         return children.size > 0;
     }
 
+    public String queryForString(String query) {
+        ValTree result = query(query);
+        if (result == null) {
+            return null;
+        }
+        return result.getString();
+    }
+
+    public Integer queryForInteger(String query) {
+        ValTree result = query(query);
+        if (result == null) {
+            return null;
+        }
+        return result.getInteger();
+    }
+
+    public Float queryForFloat(String query) {
+        ValTree result = query(query);
+        if (result == null) {
+            return null;
+        }
+        return result.getFloat();
+    }
+
     public ValTree query(String query) {
         String[] queryKeys = query.split("\\.");
         ValTree current = this;
