@@ -9,6 +9,8 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +25,20 @@ public class ValTreeTest {
         valTree = new ValTree();
     }
 
+    @Test
+    public void shouldAllowTheTreeToBeIterable() {
+        valTree.addChild("1", "1");
+        valTree.addChild("2", "2");
+        valTree.addChild("3", "3");
+
+        ArrayList<String> actuals = new ArrayList<String>();
+        for (ValTree tree : valTree) {
+            actuals.add(tree.getKey());
+        }
+
+        assertEquals(Arrays.asList("1", "2", "3"), actuals);
+    }
+    
     @Test
     public void shouldAllowAddingChildrenTrees() {
         valTree.addChild(new ValTree("key", "value"));

@@ -6,11 +6,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Stack;
 
-public class ValTree {
-    private HashMap<String, ValTree> children = new HashMap<String, ValTree>();
+public class ValTree implements Iterable<ValTree> {
+    private Map<String, ValTree> children = new LinkedHashMap<String, ValTree>();
     private String key;
     private String value;
     private Float floatValue;
@@ -38,19 +40,7 @@ public class ValTree {
     }
 
     public void parse(InputStream inputStream) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        int len = -1;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-                output.write(buf, 0, len);
-            }
-            parseData(new String(output.toByteArray()));
-        } catch (IOException e) {
-            throw new ProblemReadingFileException(e);
-        } finally {
-            close(inputStream);
-        }
+        parseData(readEntirely(inputStream));
     }
 
     public void parseData(String content) {
@@ -122,32 +112,6 @@ public class ValTree {
         return value == null;
     }
 
-    private void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException e) {
-
-            }
-        }
-    }
-
-    private void parseLine(String line) {
-        depth = determineDepthOf(line);
-        String sanitized = line.trim().replaceFirst("\\s+", " ");
-        int firstSpaceIndex = sanitized.indexOf(' ');
-        if (firstSpaceIndex == -1) {
-            key = sanitized;
-        } else {
-            key = sanitized.substring(0, firstSpaceIndex);
-            value = sanitized.substring(firstSpaceIndex + 1);
-        }
-    }
-
-    private int determineDepthOf(String line) {
-        return line.replaceAll("\t", " ").replaceAll("(^\\s*).+$", "$1").length();
-    }
-
     public int size() {
         return children.size();
     }
@@ -183,6 +147,53 @@ public class ValTree {
 
     public void addChild(ValTree tree) {
         children.put(tree.key, tree);
+    }
+
+    @Override
+    public Iterator<ValTree> iterator() {
+        return children.values().iterator();
+    }
+
+    private String readEntirely(InputStream inputStream) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024];
+        int len = -1;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                output.write(buf, 0, len);
+            }
+            return new String(output.toByteArray());
+        } catch (IOException e) {
+            throw new ProblemReadingFileException(e);
+        } finally {
+            close(inputStream);
+        }
+    }
+
+    private void close(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                throw new ProblemReadingFileException(e);
+            }
+        }
+    }
+
+    private void parseLine(String line) {
+        depth = determineDepthOf(line);
+        String sanitized = line.trim().replaceFirst("\\s+", " ");
+        int firstSpaceIndex = sanitized.indexOf(' ');
+        if (firstSpaceIndex == -1) {
+            key = sanitized;
+        } else {
+            key = sanitized.substring(0, firstSpaceIndex);
+            value = sanitized.substring(firstSpaceIndex + 1);
+        }
+    }
+
+    private int determineDepthOf(String line) {
+        return line.replaceAll("\t", " ").replaceAll("(^\\s*).+$", "$1").length();
     }
 
     private class ProblemReadingFileException extends RuntimeException {
