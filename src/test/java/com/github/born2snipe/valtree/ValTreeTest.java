@@ -1,6 +1,7 @@
 package com.github.born2snipe.valtree;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +26,24 @@ public class ValTreeTest {
     @Before
     public void setUp() throws Exception {
         valTree = new ValTree();
+    }
+
+    @Test
+    public void shouldReturnAnEmptyArrayWhenTryingToGetSiblingsWhenThereIsNoParent() {
+        assertEquals(0, valTree.getSiblings().size);
+    }
+
+    @Test
+    public void shouldAllowGettingSiblings() {
+        valTree.addChild("k1");
+        valTree.addChild("k2");
+        valTree.addChild("k3");
+
+        Array<ValTree> siblings = valTree.getChild("k1").getSiblings();
+
+        assertEquals("k1", siblings.get(0).getKey());
+        assertEquals("k2", siblings.get(1).getKey());
+        assertEquals("k3", siblings.get(2).getKey());
     }
 
     @Test

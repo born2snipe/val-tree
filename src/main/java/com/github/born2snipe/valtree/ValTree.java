@@ -90,6 +90,13 @@ public class ValTree implements Iterable<ValTree> {
         parse(new ByteArrayInputStream(content.getBytes()));
     }
 
+    public Array<ValTree> getSiblings() {
+        if (parent == null) {
+            return new Array<ValTree>(0);
+        }
+        return parent.children.values().toArray();
+    }
+
     public ValTree getChild(String key) {
         return children.get(key);
     }
