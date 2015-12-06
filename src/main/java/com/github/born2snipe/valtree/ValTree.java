@@ -97,6 +97,10 @@ public class ValTree implements Iterable<ValTree> {
         return parent.children.values().toArray();
     }
 
+    public Array<ValTree> getChildren() {
+        return children.values().toArray();
+    }
+
     public ValTree getChild(String key) {
         return children.get(key);
     }
@@ -288,7 +292,7 @@ public class ValTree implements Iterable<ValTree> {
 
     public void log(PrintStream printStream, char padding) {
         try {
-            for (ValTree tree : this) {
+            for (ValTree tree : getChildren()) {
                 saveTree(printStream, tree, 0, padding);
             }
         } finally {

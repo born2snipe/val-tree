@@ -29,6 +29,19 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldAllowGettingTheChildren() {
+        valTree.addChild("k1");
+        valTree.addChild("k2");
+        valTree.addChild("k3");
+
+        Array<ValTree> children = valTree.getChildren();
+
+        assertEquals("k1", children.get(0).getKey());
+        assertEquals("k2", children.get(1).getKey());
+        assertEquals("k3", children.get(2).getKey());
+    }
+
+    @Test
     public void shouldReturnAnEmptyArrayWhenTryingToGetSiblingsWhenThereIsNoParent() {
         assertEquals(0, valTree.getSiblings().size);
     }
