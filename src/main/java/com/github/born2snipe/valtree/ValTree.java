@@ -205,7 +205,23 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public void addChild(String key, String value) {
-        addChild(new ValTree(key, value));
+        String[] keyPath = key.split("\\.");
+
+        ValTree parent = this;
+        for (String currentKey : keyPath) {
+            String childValue = value;
+            if (!key.endsWith(currentKey)) {
+                childValue = null;
+            }
+
+            ValTree child = parent.getChild(currentKey);
+            if (child == null) {
+                child = new ValTree(currentKey, childValue);
+            }
+
+            parent.addChild(child);
+            parent = child;
+        }
     }
 
     public void addChild(ValTree tree) {

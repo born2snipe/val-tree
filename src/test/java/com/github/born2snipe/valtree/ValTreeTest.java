@@ -29,6 +29,24 @@ public class ValTreeTest {
     }
 
     @Test
+    public void shouldNotWhipeOutExistingValuesWhenAddingAChildByQuery() {
+        valTree.addChild("k1", "v1");
+        valTree.addChild("k1.k2", "v2");
+
+        assertEquals("v1", valTree.queryForString("k1"));
+        assertEquals("v2", valTree.queryForString("k1.k2"));
+    }
+
+    @Test
+    public void shouldAllowAddingAChildAtNestedPosition() {
+        valTree.addChild("k1.k2.k3", "value");
+
+        assertTrue(valTree.query("k1").isNull());
+        assertTrue(valTree.query("k1.k2").isNull());
+        assertEquals("value", valTree.queryForString("k1.k2.k3"));
+    }
+
+    @Test
     public void shouldAllowGettingTheChildren() {
         valTree.addChild("k1");
         valTree.addChild("k2");
