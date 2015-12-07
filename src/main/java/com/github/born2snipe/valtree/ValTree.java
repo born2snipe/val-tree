@@ -1,9 +1,17 @@
 package com.github.born2snipe.valtree;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.github.born2snipe.valtree.converter.FloatConverter;
+import com.github.born2snipe.valtree.converter.IntegerConverter;
+import com.github.born2snipe.valtree.converter.StringConverter;
+import com.github.born2snipe.valtree.converter.ValueConverter;
+import com.github.born2snipe.valtree.converter.Vector2Converter;
+import com.github.born2snipe.valtree.converter.Vector3Converter;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -18,6 +26,16 @@ import java.io.PrintStream;
 import java.util.Iterator;
 
 public class ValTree implements Iterable<ValTree> {
+    private static final ObjectMap<Class, ValueConverter> converters = new ObjectMap<Class, ValueConverter>();
+
+    static {
+        registerConverter(String.class, new StringConverter());
+        registerConverter(Float.class, new FloatConverter());
+        registerConverter(Integer.class, new IntegerConverter());
+        registerConverter(Vector2.class, new Vector2Converter());
+        registerConverter(Vector3.class, new Vector3Converter());
+    }
+
     private ObjectMap<String, ValTree> children = new OrderedMap<String, ValTree>();
     private ValTree parent;
     private String key;
@@ -32,6 +50,10 @@ public class ValTree implements Iterable<ValTree> {
     public ValTree(String key, String value) {
         this.key = key;
         this.value = value;
+    }
+
+    public static void registerConverter(Class clazz, ValueConverter converter) {
+        converters.put(clazz, converter);
     }
 
     public void parse(FileHandle file) {
@@ -111,14 +133,28 @@ public class ValTree implements Iterable<ValTree> {
 
     public Integer getInteger() {
         if (intValue == null && value != null) {
-            intValue = Integer.valueOf(value);
+            intValue = getValueAs(Integer.class);
         }
         return intValue;
     }
 
+    public <T> T getValueAs(Class<T> expectedReturnType) {
+        return (T) findConverter(expectedReturnType).convertFromText(value);
+    }
+
+    public void setValue(Object value) {
+        if (value == null) {
+            this.value = null;
+            this.floatValue = null;
+            this.intValue = null;
+        } else {
+            this.value = findConverter(value.getClass()).convertToText(value);
+        }
+    }
+
     public Float getFloat() {
         if (floatValue == null && value != null) {
-            floatValue = Float.valueOf(value);
+            floatValue = getValueAs(Float.class);
         }
         return floatValue;
     }
@@ -145,9 +181,7 @@ public class ValTree implements Iterable<ValTree> {
 
     public void clear() {
         key = null;
-        value = null;
-        floatValue = null;
-        intValue = null;
+        setValue(null);
         children.clear();
     }
 
@@ -260,13 +294,13 @@ public class ValTree implements Iterable<ValTree> {
         return line.replaceAll("\t", " ").replaceAll("(^\\s*).+$", "$1").length();
     }
 
-    public void set(String key, String value) {
+    public void set(String key, Object value) {
         if (parent != null) {
             parent.children.remove(this.key);
             parent.children.put(key, this);
         }
         this.key = key;
-        this.value = value;
+        this.value = findConverter(value.getClass()).convertToText(value);
         this.intValue = null;
         this.floatValue = null;
     }
@@ -333,6 +367,22 @@ public class ValTree implements Iterable<ValTree> {
                 saveTree(printStream, valTree, depth + 1, padding);
             }
         }
+    }
+
+    public void addChild(String key, Object value) {
+        addChild(key, findConverter(value.getClass()).convertToText(value));
+    }
+
+    private ValueConverter findConverter(Class<?> clazz) {
+        ValueConverter converter = converters.get(clazz);
+        if (converter == null) {
+            throw new IllegalArgumentException("No registered ValueConverter found for type: " + clazz.getName());
+        }
+        return converter;
+    }
+
+    public <T> T queryFor(String query, Class<T> expectedReturnType) {
+        return query(query).getValueAs(expectedReturnType);
     }
 
     private class ProblemReadingFileException extends RuntimeException {

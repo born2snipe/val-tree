@@ -1,6 +1,7 @@
 package com.github.born2snipe.valtree;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -26,6 +27,48 @@ public class ValTreeTest {
     @Before
     public void setUp() throws Exception {
         valTree = new ValTree();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldBlowUpIfWeDoNotHaveAConverterForTheProvidedValue() {
+        valTree.setValue(new ByteArrayOutputStream());
+    }
+
+    @Test
+    public void shouldAllowSettingTheValueToNull() {
+        valTree.setValue(null);
+
+        assertNull(valTree.getString());
+    }
+
+    @Test
+    public void shouldAllowSettingAValueToACustomType() {
+        valTree.addChild("key", "value");
+        valTree.getChild("key").set("key", new Vector2(1, 2));
+
+        assertEquals("(1.0, 2.0)", valTree.getChild("key").getString());
+    }
+
+    @Test
+    public void shouldAllowQueryingForCustomValues() {
+        Vector2 value = new Vector2(1, 3);
+        valTree.addChild("k1.k2.k3", value);
+
+        assertEquals(value, valTree.queryFor("k1.k2.k3", Vector2.class));
+    }
+
+    @Test
+    public void shouldAllowSettingCustomValueTypes() {
+        valTree.addChild("key", new Vector2(2, 3));
+
+        assertEquals("(2.0, 3.0)", valTree.getChild("key").getString());
+    }
+
+    @Test
+    public void shouldAllowReadingCustomValueTypes() {
+        valTree.addChild("key", "(1,0)");
+
+        assertEquals(new Vector2(1, 0), valTree.getChild("key").getValueAs(Vector2.class));
     }
 
     @Test
