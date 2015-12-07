@@ -9,7 +9,7 @@
 
     <groupId>com.github.born2snipe</groupId>
     <artifactId>val-tree</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
     <name>val-tree</name>
 
