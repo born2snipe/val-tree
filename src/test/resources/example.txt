@@ -1,0 +1,17 @@
+orc
+    grunt
+        health 100
+        strength 250
+        dexterity 50
+        ability flatulence
+
+    knight
+        health 250
+        strength 200
+        dexterity 75
+
+    wizard
+        health 50
+        strength 25
+        dexterity 250
+        ability mind control
