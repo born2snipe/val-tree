@@ -29,6 +29,11 @@ public class ValTreeTest {
         valTree = new ValTree();
     }
 
+    @Test
+    public void shouldReturnNullWhenNothingIsFoundForAQueryWithACustomType() {
+        assertNull(valTree.queryFor("k1.k2", Integer.class));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldBlowUpIfWeDoNotHaveAConverterForTheProvidedValue() {
         valTree.setValue(new ByteArrayOutputStream());

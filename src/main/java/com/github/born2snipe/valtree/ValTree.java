@@ -382,7 +382,11 @@ public class ValTree implements Iterable<ValTree> {
     }
 
     public <T> T queryFor(String query, Class<T> expectedReturnType) {
-        return query(query).getValueAs(expectedReturnType);
+        ValTree result = query(query);
+        if (result == null) {
+            return null;
+        }
+        return result.getValueAs(expectedReturnType);
     }
 
     private class ProblemReadingFileException extends RuntimeException {
